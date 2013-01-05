@@ -11,7 +11,7 @@ if (file_exists($p2pTestsAutoLoaderPath)) {
     $p2pTestsAutoLoader = new ToppaAutoLoaderWp('/post-to-post-links-ii');
 }
 
-class ButtonableUnitTestsSuite extends TestSuite {
+class P2pUnitTestsSuite extends TestSuite {
     function __construct() {
         parent::__construct();
         $this->addFile('UnitPost2Post.php');

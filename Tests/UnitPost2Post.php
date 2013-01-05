@@ -2,6 +2,7 @@
 
 Mock::generate('ToppaAutoLoaderWp');
 Mock::generate('ToppaFunctionsFacadeWp');
+Mock::generate('ToppaDatabaseFacadeWp');
 
 class UnitPost2Post extends UnitTestCase {
     private $post2post;
@@ -10,17 +11,18 @@ class UnitPost2Post extends UnitTestCase {
         $this->UnitTestCase();
     }
 
-    public function setUp() {
-        $autoLoader = new MockToppaAutoLoaderWp();
-        $functionsFacade = new MockToppaFunctionsFacadeWp();
-        $post = new stdClass;
-        $post->post_title = 'Hello world!';
-        $functionsFacade->setReturnValue('getPost', $post);
-        $this->post2post = new Post2Post($autoLoader, $functionsFacade);
+    private function basicSetUp() {
+        $this->finalizeSetUp(new MockToppaFunctionsFacadeWp(), new MockToppaDatabaseFacadeWp());
     }
 
-    public function testSetShortcodeWithInvalidArgument() {
+    private function finalizeSetUp($functionsFacade, $dbFacade) {
+        $autoLoader = new MockToppaAutoLoaderWp();
+        $this->post2post = new Post2Post($autoLoader, $functionsFacade, $dbFacade);
+    }
+
+    public function testSetShortcodeWithInvalidArgumentType() {
         try {
+            $this->basicSetUp();
             $this->post2post->setShortcode('string');
         }
 
@@ -29,40 +31,10 @@ class UnitPost2Post extends UnitTestCase {
         }
     }
 
-    public function testSetShortcodeWithValidArgument() {
-        $shortcode = array(
-            'type' => 'slug',
-            'value' => 'hello-world',
-            'text' => '  my favorite post', // extra spaces in front should get trimmed
-            'attributes' => 'onclick="foo()"',
-            'anchor' => 'named_anchor'
-        );
-
-        $trimmedShortcode = $shortcode;
-        $trimmedShortcode['text'] = 'my favorite post';
-        $this->assertEqual($this->post2post->setShortcode($shortcode), $trimmedShortcode);
-    }
-
-    public function testSetLinkTextFromShortcodeIfProvidedWithNoText() {
-        $this->post2post->setShortcode(array('text' => ''));
-        $this->assertNull($this->post2post->setLinkTextFromShortcodeIfProvided());
-
-    }
-
-    public function testSetLinkTextFromShortcodeIfProvidedWithText() {
-        $this->post2post->setShortcode(array('text' => 'foo'));
-        $this->assertEqual($this->post2post->setLinkTextFromShortcodeIfProvided(), 'foo');
-    }
-
-    public function testSetPostIdWithInvalidType() {
-        $this->post2post->setShortcode(array('type' => 'slug'));
-        $this->assertNull($this->post2post->setPostId());
-    }
-
-    public function testSetPostIdWithInvalidValue() {
+    public function testSetShortcodeWithoutRequiredAttributes() {
         try {
-            $this->post2post->setShortcode(array('type' => 'id', 'value' => 'foo'));
-            $this->post2post->setPostId();
+            $this->basicSetUp();
+            $this->post2post->setShortcode(array('foo' => 'bar'));
         }
 
         catch (Exception $e) {
@@ -70,22 +42,158 @@ class UnitPost2Post extends UnitTestCase {
         }
     }
 
-    public function testSetPostIdWithValidShortcode() {
-        $this->post2post->setShortcode(array('type' => 'id', 'value' => 2));
-        $this->assertEqual($this->post2post->setPostId(), 2);
+    public function testSetShortcodeWithValidType() {
+        $slug = 'hello-world';
+        $this->basicSetUp();
+        $shortcode = array('slug' => $slug);
+        $this->post2post->setShortcode($shortcode);
+        $this->assertEqual($this->post2post->setShortcode($shortcode), $shortcode);
     }
 
-    public function testSetLinkTextByPostIdIfNeededWithValidShortcode() {
-        $this->post2post->setShortcode(array('type' => 'id', 'value' => 2));
-        $this->assertEqual($this->post2post->setLinkTextByPostIdIfNeeded(), 'Hello world!');
+    public function testSetShortcodeWithDeprecatedType() {
+        $this->basicSetUp();
+        $shortcode = array('type' => 'slug', 'value' => 'hello-world');
+        $this->post2post->setShortcode($shortcode);
+        $expected = $shortcode;
+        $expected['slug'] = 'hello-world';
+        $this->assertEqual($this->post2post->setShortcode($shortcode), $expected);
     }
 
-    public function testSetLinkTextByPostIdIfNeededWithInvalidShortcode() {
-        $autoLoader = new ToppaAutoLoaderWp();
-        $functionsFacade = new ToppaFunctionsFacadeWp();
-        $this->post2post = new Post2Post($autoLoader, $functionsFacade);
+    public function testSetShortcodeWithAllAttributes() {
+        $this->basicSetUp();
+        $shortcode = array(
+            'slug' => 'hello-world',
+            'text' => '  my favorite post', // extra spaces in front should get trimmed
+            'attributes' => 'onclick="foo()"',
+            'anchor' => 'named_anchor'
+        );
+        $trimmedShortcode = $shortcode;
+        $trimmedShortcode['text'] = 'my favorite post';
+        $this->assertEqual($this->post2post->setShortcode($shortcode), $trimmedShortcode);
+    }
 
-        $this->post2post->setShortcode(array('type' => 'id', 'value' => 2));
-        var_dump($this->post2post->setLinkTextByPostIdIfNeeded());
+    public function testSetTitleAndLinkUrlFromPostSlugWithEmptySlug() {
+        try {
+            $this->basicSetUp();
+            $this->post2post->setShortcode(array('slug' => ''));
+            $this->post2post->setTitleAndLinkUrlFromPostSlug();
+        }
+
+        catch (Exception $e) {
+            $this->pass('Received expected exception');
+        }
+    }
+
+    public function testSetTitleAndLinkUrlFromPostSlugWithPostNotFound() {
+        $functionsFacade = new MockToppaFunctionsFacadeWp();
+        $functionsFacade->setReturnValue('escHtml', 'hello-world');
+        $dbFacade = new MockToppaDatabaseFacadeWp();
+        $dbFacade->setReturnValue('selectSqlRow', null);
+        $this->finalizeSetUp($functionsFacade, $dbFacade);
+
+        try {
+            $this->post2post->setShortcode(array('slug' => 'hello-world'));
+            $this->post2post->setTitleAndLinkUrlFromPostSlug();
+        }
+
+        catch (Exception $e) {
+            $this->pass('Received expected exception');
+        }
+    }
+
+    private function successfulPostQuerySetUp() {
+        $functionsFacade = new MockToppaFunctionsFacadeWp();
+        $functionsFacade->setReturnValue('getPermalink', 'http://localhost/wordpress/hello-world');
+        $functionsFacade->setReturnValue('escHtml', 'my link text');
+        $dbFacade = new MockToppaDatabaseFacadeWp();
+        $dbFacade->setReturnValue('sqlSelectRow', array('ID' => 1234, 'post_title' => 'Hello World!'));
+        $this->finalizeSetUp($functionsFacade, $dbFacade);
+    }
+
+    public function testSetTitleAndLinkUrlFromPostSlugWithPostFound() {
+        $this->successfulPostQuerySetUp();
+        $this->post2post->setShortcode(array('slug' => 'hello-world'));
+        $this->post2post->setTitleAndLinkUrlFromPostSlug();
+        $this->assertEqual($this->post2post->getLinkUrl(), 'http://localhost/wordpress/hello-world');
+        $this->assertEqual($this->post2post->getTitle(), 'Hello World!');
+    }
+
+    public function testSetTitleAndLinkUrlFromPostIdWithNonNumericPostId() {
+        try {
+            $this->basicSetUp();
+            $this->post2post->setShortcode(array('id' => 'foo'));
+            $this->post2post->setTitleAndLinkUrlFromPostId();
+        }
+
+        catch (Exception $e) {
+            $this->pass('Received expected exception');
+        }
+    }
+
+    public function testSetTitleAndLinkUrlFromPostIdWithPostNotFound() {
+        $functionsFacade = new MockToppaFunctionsFacadeWp();
+        $functionsFacade->setReturnValue('getPost', null);
+        $functionsFacade->setReturnValue('escHtml', '1234');
+        $this->finalizeSetUp($functionsFacade, new MockToppaDatabaseFacadeWp());
+
+        try {
+            $this->post2post->setShortcode(array('id' => '1234'));
+            $this->post2post->setTitleAndLinkUrlFromPostId();
+        }
+
+        catch (Exception $e) {
+            $this->pass('Received expected exception');
+        }
+    }
+
+    public function testSetTitleAndLinkUrlFromPostIdWithPostFound() {
+        $functionsFacade = new MockToppaFunctionsFacadeWp();
+        $post = array('post_title' => 'Hello world!');
+        $functionsFacade->setReturnValue('getPost', $post);
+        $functionsFacade->setReturnValue('getPermalink', 'http://localhost/hello-world');
+        $this->finalizeSetUp($functionsFacade, new MockToppaDatabaseFacadeWp());
+
+        $this->post2post->setShortcode(array('id' => '1234'));
+        $this->post2post->setTitleAndLinkUrlFromPostId();
+        $this->assertEqual($this->post2post->getLinkUrl(), 'http://localhost/hello-world');
+        $this->assertEqual($this->post2post->getTitle(), 'Hello world!');
+    }
+
+    public function testSetLinkTextWithTextFromShortcode() {
+        $this->assertEqual($this->post2post->setLinkText('my link text'), 'my link text');
+    }
+
+    public function testSetLinkTextWithTextFromShortcodeAttribute() {
+        $this->successfulPostQuerySetUp();
+        $this->post2post->setShortcode(array('slug' => 'hello-world', 'text' => 'my link text'));
+        $this->assertEqual($this->post2post->setLinkText(), 'my link text');
+    }
+
+    public function testSetLinkTextWithTextFromPostTitle() {
+        $this->successfulPostQuerySetUp();
+        $this->post2post->setShortcode(array('slug' => 'hello-world'));
+        $this->post2post->setTitleAndLinkUrlFromPostSlug();
+        $this->assertEqual($this->post2post->setLinkText(), 'Hello World!');
+    }
+
+    public function testSetAnchor() {
+        $this->post2post->setShortcode(array('slug' => 'hello-world', 'anchor' => 'more'));
+        $this->post2post->setLinkAnchor();
+        $this->assertEqual($this->post2post->setLinkAnchor(), '#more');
+    }
+    
+    public function testSetP2pLink() {
+        $this->successfulPostQuerySetUp();
+        $this->post2post->setShortcode(array(
+            'slug' => 'hello-world',
+            'anchor' => 'more',
+            'text' => 'my link text',
+            'attributes' => "id='my-id'")
+        );
+        $this->post2post->setTitleAndLinkUrlFromPostSlug();
+        $this->post2post->setLinkAnchor();
+        $this->post2post->setLinkText();
+        $expected = "<a href='http://localhost/wordpress/hello-world#more' title='Hello World!' id='my-id'>my link text</a>";
+        $this->assertEqual($this->post2post->setP2pLink(), $expected);
     }
 }

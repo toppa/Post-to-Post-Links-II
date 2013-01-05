@@ -19,7 +19,8 @@ if (file_exists($p2pAutoLoaderPath)) {
     $p2pToppaAutoLoader = new ToppaAutoLoaderWp('/toppa-plugin-libraries-for-wordpress');
     $p2pAutoLoader = new ToppaAutoLoaderWp('/post-to-post-links-ii');
     $functionFacade = new ToppaFunctionsFacadeWp();
-    $p2p = new Post2Post($p2pAutoLoader, $functionFacade);
+    $dbFacade = new ToppaDatabaseFacadeWp();
+    $p2p = new Post2Post($p2pAutoLoader, $functionFacade, $dbFacade);
     $p2p->run();
 }
 
@@ -53,8 +54,8 @@ function p2pActivate() {
 
     // activate
     elseif (method_exists('Buttonable', 'registerButton')) {
-        $dialog_path = dirname(__FILE__) . '/Display/buttonDialog.html';
-        $status = Buttonable::registerButton('p2p', 'p2p', __('Add Post-to-Post Link', 'p2p'), 'ed_p2p', 'y', 'y', $dialog_path);
+        $dialogPath = dirname(__FILE__) . '/Display/buttonDialog.html';
+        $status = Buttonable::registerButton('p2p', 'p2p', __('Add Post-to-Post Link', 'p2p'), 'ed_p2p', 'n', 'y', $dialogPath);
 
         if (is_string($status)) {
             p2pCancelActivation($status);
@@ -63,7 +64,7 @@ function p2pActivate() {
 }
 
 function p2pCancelActivation($message) {
-    deactivate_plugins(basename(__FILE__));
+    deactivate_plugins(basename(dirname(__FILE__)) . '/' . basename(__FILE__), true);
     wp_die($message);
 }
 

@@ -11,25 +11,25 @@
     <form id="buttonable_p2p_form">
         <table class="form-table">
         <tr>
-        <th><select name="type" id="buttonable_p2p_type">
-        <option value="slug" selected="selected"><?php _e("Post/Page Slug", P2P_L10N_NAME); ?></option>
-        <option value="id"><?php _e("Post/Page ID", P2P_L10N_NAME); ?></option>
-        <option value="cat_slug"><?php _e("Category Slug", P2P_L10N_NAME); ?></option>
-        <option value="cat_id"><?php _e("Category ID", P2P_L10N_NAME); ?></option>
-        <option value="tag_slug"><?php _e("Tag Slug", P2P_L10N_NAME); ?></option>
-        <option value="tag_id"><?php _e("Tag ID", P2P_L10N_NAME); ?></option>
+        <th class="p2p_title"><select name="type" id="buttonable_p2p_type">
+            <option value="slug" selected="selected"><?php _e("Post/Page Slug", 'p2p'); ?></option>
+            <option value="id"><?php _e("Post/Page ID", 'p2p'); ?></option>
+            <option value="cat_slug"><?php _e("Category Slug", 'p2p'); ?></option>
+            <option value="cat_id"><?php _e("Category ID", 'p2p'); ?></option>
+            <option value="tag_slug"><?php _e("Tag Slug", 'p2p'); ?></option>
+            <option value="tag_id"><?php _e("Tag ID", 'p2p'); ?></option>
         </select></th>
         <td><input type="text" name="value" id="buttonable_p2p_value" size="20" /></td>
         </tr>
         <tr>
-        <th><label for="buttonable_p2p_text"><?php _e("Link Text:", P2P_L10N_NAME); ?></label></th>
-        <td><input type="text" name="text" id="buttonable_p2p_text" size="20" /></td>
+        <th class="p2p_title"><label for="buttonable_p2p_anchor"><?php _e("Page Anchor:", 'p2p'); ?></label></th>
+        <td><input type="text" name="anchor" id="buttonable_p2p_anchor" size="20" /></td>
         </tr>
         <tr>
-        <th><label for="buttonable_p2p_attributes"><?php _e("Link Attributes:", P2P_L10N_NAME); ?></label></th>
+        <th class="p2p_title"><label for="buttonable_p2p_attributes"><?php _e("Link Attributes:", 'p2p'); ?></label></th>
         <td><input type="text" name="attributes" id="buttonable_p2p_attributes" size="20" /></td>
         </tr>
         </table>
-        <p class="submit"><input type="submit" name="buttonable_p2p_submit" value="<?php _e('Add Post-to-Post Link', P2P_L10N_NAME); ?>" class="button-secondary" /></p>
+        <p class="submit"><input type="submit" name="buttonable_p2p_submit" value="<?php _e('Add Post-to-Post Link', 'p2p'); ?>" class="button-secondary" /></p>
     </form>
 </div>

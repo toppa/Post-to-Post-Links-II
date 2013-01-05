@@ -3,72 +3,108 @@
 class Post2Post {
     private $autoLoader;
     private $functionsFacade;
-    private $shortcode = array(
-        'type' => null,
-        'value' => null,
-        'text' => null,
-        'attributes' => null,
-        'anchor' => null
-    );
-
-    private $postId;
+    private $dbFacade;
+    private $shortcode;
     private $linkUrl;
+    private $title;
     private $linkText;
-    private $linkTag;
+    private $linkAnchor;
+    private $p2pLink;
 
-    public function __construct(ToppaAutoLoader $autoLoader, ToppaFunctionsFacade $functionsFacade) {
+    public function __construct(ToppaAutoLoader $autoLoader, ToppaFunctionsFacade $functionsFacade, ToppaDatabaseFacade $dbFacade) {
         $this->autoLoader = $autoLoader;
         $this->functionsFacade = $functionsFacade;
+        $this->dbFacade = $dbFacade;
     }
 
     public function run() {
+        add_action('init', array($this, 'addTinyMceButton'));
         add_shortcode('p2p', array($this, 'handleShortcode'));
     }
 
-    public function handleShortcode($userShortcode) {
-        try {
-            $this->setShortcode($userShortcode);
-            $this->setLinkTextFromShortcodeIfProvided();
+    public function addTinyMceButton() {
+        if (!current_user_can('edit_posts') && !current_user_can('edit_pages'))
+            return;
 
-            switch ($this->shortcode['type']) {
-                case 'id':
-                    $this->setPostId();
-                    $this->setLinkTextByPostIdIfNeeded();
-                    $this->setLinkUrlByPostId();
-                    break;
-                case 'slug':
-                    $this->setLinkByPostSlug();
-                    break;
-                case 'cat_id':
-                    $this->setLinkByCategoryId();
-                    break;
-                case 'cat_slug':
-                    $this->setLinkByCategorySlug();
-                    break;
-                case 'tag_id':
-                    $this->setLinkByTagId();
-                    break;
-                case 'tag_slug':
-                    $this->setLinkByTagSlug();
-                    break;
-                default:
-                    $e = new Exception(__('Unrecognized shortcode "type"', 'p2p'));
-                    return $this->formatExceptionMessage($e);
+        if (get_user_option('rich_editing') == 'true') {
+            add_filter('mce_buttons', array($this, 'registerTinyMceButton'));
+            add_filter('mce_external_plugins', array($this, 'addTinyMcePlugin'));
+        }
+    }
+
+    public function registerTinyMceButton($buttons) {
+        array_push($buttons, "|", 'p2p');
+        return $buttons;
+    }
+
+    public function addTinyMcePlugin($plugin_array) {
+        $plugin_array['p2p'] = $this->functionsFacade->getPluginsUrl('/Display/tinyMceButton.js', __FILE__);
+        return $plugin_array;
+    }
+
+    public function handleShortcode($userShortcode, $text) {
+        try {
+            $this->setShortcode($userShortcode, $text);
+
+            if ($this->shortcode['slug']) {
+                $this->setTitleAndLinkUrlFromPostSlug();
             }
+
+            elseif ($this->shortcode['id']) {
+                $this->setTitleAndLinkUrlFromPostId();
+            }
+
+            else {
+                $e = new Exception(__('No valid type provided', 'p2p'));
+                return $this->formatExceptionMessage($e);
+            }
+
+            $this->setLinkText($text);
+            $this->setLinkAnchor();
+            $this->setP2pLink();
         }
 
         catch (Exception $e) {
             return $this->formatExceptionMessage($e);
         }
 
-        return $this->setLink();
+        return $this->p2pLink;
     }
 
     public function setShortcode($userShortcode) {
         // if the shortcode has no attributes specified, WP passes
         // an empty string instead of an array
         if (!is_array($userShortcode)) {
-            throw New Exception(__('Invalid shortcode arguments provided', 'p2p'));
+            throw New Exception(__('No shortcode attributes found', 'p2p'));
+        }
+
+        if ($userShortcode['type']) {
+            switch ($userShortcode['type']) {
+                case 'slug':
+                    $userShortcode['slug'] = $userShortcode['value'];
+                    break;
+                case 'id':
+                    $userShortcode['id'] = $userShortcode['value'];
+                    break;
+                case 'cat_slug':
+                    $userShortcode['cat_slug'] = $userShortcode['value'];
+                    break;
+                case 'cat_id':
+                    $userShortcode['cat_id'] = $userShortcode['value'];
+                    break;
+                case 'tag_slug':
+                    $userShortcode['tag_slug'] = $userShortcode['value'];
+                    break;
+                case 'tag_id':
+                    $userShortcode['tag_id'] = $userShortcode['value'];
+                    break;
+                default:
+                    throw New Exception(
+                        __('Unrecognized type:', 'p2p')
+                        . ' '
+                        . $this->functionsFacade->escHtml($userShortcode['type'])
+                    );
+            }
         }
 
         $this->shortcode = $userShortcode;
@@ -76,128 +112,97 @@ class Post2Post {
         return $this->shortcode;
     }
 
-    public function setLinkTextFromShortcodeIfProvided() {
-        if (strlen($this->shortcode['text'])) {
+
+    public function setTitleAndLinkUrlFromPostSlug() {
+        if (!strlen($this->shortcode['slug'])) {
+            throw New Exception(__('You must provide a post slug', 'p2p'));
+        }
+
+        $posts_table = $this->dbFacade->executeDbFunction('posts');
+        $fields = array('ID', 'post_title');
+        $where = array('post_name' => $this->shortcode['slug']);
+        $post = $this->dbFacade->sqlSelectRow($posts_table, $fields, $where);
+
+        if (!is_numeric($post['ID'])) {
+            throw New Exception(
+                __('No post found with slug', 'p2p')
+                . ' "'
+                . $this->functionsFacade->escHtml($this->shortcode['slug'])
+                . '"'
+            );
+        }
+
+        $this->linkUrl = $this->functionsFacade->getPermalink($post['ID']);
+        $this->title = $post['post_title'];
+    }
+
+    public function setTitleAndLinkUrlFromPostId() {
+        if (!is_numeric($this->shortcode['id'])) {
+            throw New Exception(__('You must provide a numeric post ID', 'p2p'));
+        }
+
+        $post = $this->functionsFacade->getPost($this->shortcode['id'], ARRAY_A);
+
+        if (!is_array($post)) {
+            throw New Exception(
+                __('No post found with id', 'p2p')
+                . ' "'
+                . $this->functionsFacade->escHtml($this->shortcode['id'])
+                . '"'
+            );
+        }
+
+        $this->linkUrl = $this->functionsFacade->getPermalink($this->shortcode['id']);
+        $this->title = $post['post_title'];
+    }
+
+    public function setLinkText($text = null) {
+        if ($text) {
+            $this->linkText = $text;
+        }
+
+        elseif ($this->shortcode['text']) {
             $this->linkText = $this->shortcode['text'];
         }
 
-        return $this->linkText;
-    }
-
-    public function setPostId() {
-        if ($this->shortcode['type'] != 'id') {
-            return null;
-        }
-
-        if (!is_numeric($this->shortcode['value'])) {
-            throw New Exception(__('You must provide a numeric post ID for type="id"', 'p2p'));
-        }
-
-        $this->postId = $this->shortcode['value'];
-        return $this->postId;
-    }
-
-    public function setLinkTextByPostIdIfNeeded() {
-        if (!$this->linkText) {
-            $post = $this->functionsFacade->getPost($this->postId);
-
-            if (is_object($post)) {
-                $this->linkText = $post->post_title;
-            }
-
-            else {
-                throw New Exception(__('There is no post with that ID', 'p2p'));
-            }
+        else {
+            $this->linkText = $this->title;
         }
 
         return $this->linkText;
     }
-/*
-    public function setTitleAndLinkByPost() {
-        if ($this->shortcode['type'] != 'id' && $this->shortcode['type'] != 'slug') {
-            return null;
+
+    public function setLinkAnchor() {
+        if ($this->shortcode['anchor']) {
+            $this->linkAnchor = '#' . $this->shortcode['anchor'];
         }
 
-        elseif ($this->shortcode['type'] == 'id' && !is_numeric($this->shortcode['value'])) {
-            throw New Exception('You must provide a numeric post ID for type="id"', 'p2p');
-        }
-
-        elseif ($this->shortcode['type'] == 'slug' && !strlen($this->shortcode['value'])) {
-            throw New Exception(__('You must provide a post slug for type="slug"', 'p2p'));
-        }
-
-        elseif ($this->shortcode['type'] != 'id' && is_numeric($this->shortcode['value'])) {
-            $post = get_post($this->shortcode['value']);
-        }
-
-        elseif ($this->shortcode['type'] != 'cat_slug' && strlen($this->shortcode['value'])) {
-            $categorySlug = $this->shortcode['value'];
-            $categoryId = get_cat_ID($this->shortcode['value']);
-        }
-
-
-        elseif (!is_numeric($this->shortcode['value'])) {
-            throw New Exception('You must provide a numeric post ID for type="id"', 'p2p');
-        }
-
-        elseif (is_numeric($this->shortcode['value'])) {
-            $post = get_post($this->shortcode['value'], ARRAY_A);
-
-            if (!is_array($post)) {
-                throw New Exception(
-                    __('There seems to not be a post with id', 'p2p')
-                    . ' "'
-                    . htmlentities($this->shortcode['value'])
-                    . '"'
-                );
-            }
-
-            $this->link = get_permalink($this->shortcode['value']);
-            $this->title = $post['post_title'];
-        }
-
-        // we shouldn't get here
-        else {
-            throw New Exception('Unknown error', 'p2p');
-        }
-
-        return array($this->title, $this->link);
+        return $this->linkAnchor;
     }
 
-    public function setTitleAndLinkByPostSlug() {
-        global $wpdb;
+    public function setP2pLink() {
+        $this->p2pLink = "<a href='{$this->linkUrl}{$this->linkAnchor}' title='{$this->title}'";
 
-        if ($this->shortcode['type'] != 'slug') {
-            return null;
+        if (is_string($this->shortcode['attributes'])) {
+            #$this->p2pLink .= ' ' . $this->functionsFacade->escHtml($this->shortcode['attributes']);
+            $this->p2pLink .= ' ' . $this->shortcode['attributes'];
         }
 
-        elseif (!strlen($this->shortcode['value'])) {
-            throw New Exception(__('You must provide a post slug for type="slug"', 'p2p'));
-        }
-
-        elseif (strlen($this->shortcode['value'])) {
-            $sql = $wpdb->prepare("select ID, post_title from {$wpdb->posts} where post_name = %s", $this->shortcode['value']);
-            list($id, $this->title) = $wpdb->get_row($sql, ARRAY_N);
-
-            if (!is_numeric($id)) {
-                throw New Exception(
-                    __('There seems to not be a post with slug', 'p2p')
-                    . ' "'
-                    . htmlentities($this->shortcode['value'])
-                    . '"'
-                );
-            }
-
-            $this->link = get_permalink($id);
-        }
-
-        // we shouldn't get here
-        else {
-            throw New Exception('Unknown error', 'p2p');
-        }
-
-        return array($this->title, $this->link);
+        $this->p2pLink .= ">{$this->linkText}</a>";
+        return $this->p2pLink;
     }
+
+    public function getLinkUrl() {
+        return $this->linkUrl;
+    }
+
+    public function getTitle() {
+        return $this->title;
+    }
+
+    /*
+
+
 
     public function setTitleAndLinkByCategory() {
         if ($this->shortcode['type'] != 'cat_id' && $this->shortcode['type'] != 'cat_slug') {
@@ -271,32 +276,6 @@ elseif (($type == 'tag_id' && is_numeric($value)) || ($type == 'tag_slug' && is_
             return Post2Post::reportError(__("Invalid post-to-post links tag", P2P_L10N_NAME));
         }
 
-		
-		
-		
-		
-		if(is_wp_error($permalink)){
-			return Post2Post::reportError('An unespected error happened in Post2Post plugin. $permalink returned with error "'. $permalink->get_error_message() .'".');
-		}
-		
-		if( !empty($section)  &&  $section[0]!='#' ){
-			$section='#'.$section;
-		}
-		
-		if (empty($text)) {
-			$text = $title;
-		}
-		
-		
-        $replace = '<a href="' . $permalink . $section .'" title="'. $title .'"';
-
-        if (is_string($attributes)) {
-            $replace .= " $attributes";
-        }
-
-        $replace .= ">$text</a>";
-        return $replace;
-    }
 */
     public function formatExceptionMessage($e) {
         return '<p><strong>'
@@ -306,5 +285,3 @@ elseif (($type == 'tag_id' && is_numeric($value)) || ($type == 'tag_slug' && is_
             . '</pre>';
     }
 }
-
-
