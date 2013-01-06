@@ -2,38 +2,16 @@
 <head>
     <title>Post to Post Links</title>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
     <script type="text/javascript" src="../../../../wp-includes/js/tinymce/tiny_mce_popup.js"></script>
     <link rel="stylesheet" href="../../../../wp-includes/js/tinymce/themes/advanced/skins/wp_theme/dialog.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/smoothness/jquery-ui.css">
     <style>
         .p2p_title {
             text-align: left;
             font-weight: normal;
         }
     </style>
-
-    <script>
-        jQuery(document).ready(function($) {
-            $('#buttonable_p2p_form').submit(function(ev) {
-                if (!$('#buttonable_p2p_value').val()) {
-                    alert('Please enter a slug or ID');
-                    return false;
-                }
-
-                var attributes = $('#buttonable_p2p_attributes').val().replace(/"/g, "'");
-
-                var replace = '[p2p type="' + $('#buttonable_p2p_type').val()
-                    + '" value="' + $('#buttonable_p2p_value').val() + '"'
-                    + ($('#buttonable_p2p_anchor').val() ? (' anchor="' + $('#buttonable_p2p_anchor').val() + '"') : '')
-                    + (attributes ? (' attributes="' + attributes + '"') : '')
-                    + ']'
-                    + tinyMCE.activeEditor.selection.getContent()
-                    + '[/p2p]';
-                tinyMCEPopup.execCommand('mceReplaceContent', false, replace);
-                tinyMCEPopup.close();
-                ev.preventDefault();
-            });
-        });
-    </script>
 </head>
 <body>
 <?php
