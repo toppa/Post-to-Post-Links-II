@@ -18,8 +18,17 @@ class Post2Post {
     }
 
     public function run() {
+        add_action('admin_enqueue_scripts', array($this, 'addAdminScripts'));
         add_action('init', array($this, 'addTinyMceButton'));
         add_shortcode('p2p', array($this, 'handleShortcode'));
+        add_action('wp_ajax_p2p', array($this, 'ajaxGetMatches'));
+
+    }
+
+    public function addAdminScripts($hook) {
+        if ($hook == 'post-new.php' || $hook == 'post.php') {
+            wp_enqueue_script('jquery-ui-autocomplete');
+        }
     }
 
     public function addTinyMceButton() {
@@ -54,6 +63,14 @@ class Post2Post {
                 $this->setTitleAndLinkUrlFromPostId();
             }
 
+            elseif ($this->shortcode['cat_slug']) {
+                $this->setTitleAndLinkUrlFromCatSlug();
+            }
+
+            elseif ($this->shortcode['tag_slug']) {
+                $this->setTitleAndLinkUrlFromTagSlug();
+            }
+
             else {
                 $e = new Exception(__('No valid type provided', 'p2p'));
                 return $this->formatExceptionMessage($e);
@@ -86,17 +103,11 @@ class Post2Post {
                 case 'id':
                     $userShortcode['id'] = $userShortcode['value'];
                     break;
-                case 'cat_slug':
+                case 'category':
                     $userShortcode['cat_slug'] = $userShortcode['value'];
                     break;
-                case 'cat_id':
-                    $userShortcode['cat_id'] = $userShortcode['value'];
-                    break;
-                case 'tag_slug':
+                case 'post_tag':
                     $userShortcode['tag_slug'] = $userShortcode['value'];
-                    break;
-                case 'tag_id':
-                    $userShortcode['tag_id'] = $userShortcode['value'];
                     break;
                 default:
                     throw New Exception(
@@ -111,7 +122,6 @@ class Post2Post {
         array_walk($this->shortcode, array('ToppaFunctions', 'trimCallback'));
         return $this->shortcode;
     }
-
 
     public function setTitleAndLinkUrlFromPostSlug() {
         if (!strlen($this->shortcode['slug'])) {
@@ -136,6 +146,7 @@ class Post2Post {
         $this->title = $post['post_title'];
     }
 
+    // @deprecated
     public function setTitleAndLinkUrlFromPostId() {
         if (!is_numeric($this->shortcode['id'])) {
             throw New Exception(__('You must provide a numeric post ID', 'p2p'));
@@ -154,6 +165,58 @@ class Post2Post {
 
         $this->linkUrl = $this->functionsFacade->getPermalink($this->shortcode['id']);
         $this->title = $post['post_title'];
+    }
+
+
+    public function setTitleAndLinkUrlFromCatSlug() {
+        if (!strlen($this->shortcode['cat_slug'])) {
+            throw New Exception(__('You must provide a category slug', 'p2p'));
+        }
+
+        return $this->setTitleAndLinkUrlFromTermSlug($this->shortcode['cat_slug'], 'category');
+    }
+
+    public function setTitleAndLinkUrlFromTagSlug() {
+        if (!strlen($this->shortcode['tag_slug'])) {
+            throw New Exception(__('You must provide a tag slug', 'p2p'));
+        }
+
+        return $this->setTitleAndLinkUrlFromTermSlug($this->shortcode['cat_slug'], 'category');
+    }
+
+    private function setTitleAndLinkUrlFromTermSlug($slug, $type) {
+        if (!$slug) {
+            throw New Exception(__('You must provide a term slug', 'p2p'));
+        }
+
+        if (!$type) {
+            throw New Exception(__('You must provide a term type', 'p2p'));
+        }
+
+        $term = $this->functionsFacade->getTermBy('slug', $slug, $type);
+
+        if (!is_a($term, 'stdClass')) {
+            throw New Exception(
+                __('No term found with slug', 'p2p')
+                . ' "'
+                . $this->functionsFacade->escHtml($slug)
+                . '"'
+            );
+        }
+
+        $this->linkUrl = $this->functionsFacade->getTermLink($term);
+
+        if (!is_string($this->linkUrl)) {
+            throw New Exception(
+                __('No link found for term slug', 'p2p')
+                    . ' "'
+                    . $this->functionsFacade->escHtml($slug)
+                    . '"'
+            );
+
+        }
+
+        $this->title = $term->name;
     }
 
     public function setLinkText($text = null) {
@@ -184,7 +247,6 @@ class Post2Post {
         $this->p2pLink = "<a href='{$this->linkUrl}{$this->linkAnchor}' title='{$this->title}'";
 
         if (is_string($this->shortcode['attributes'])) {
-            #$this->p2pLink .= ' ' . $this->functionsFacade->escHtml($this->shortcode['attributes']);
             $this->p2pLink .= ' ' . $this->shortcode['attributes'];
         }
 
@@ -200,37 +262,51 @@ class Post2Post {
         return $this->title;
     }
 
+    public function ajaxGetMatches() {
+        try {
+            $title = $this->dbFacade->checkIsStringAndEscape($_REQUEST['term']);
+
+            switch ($_REQUEST['type']) {
+                case 'slug':
+                    $table = $this->dbFacade->executeDbFunction('posts');
+                    $sql = "
+                        select post_title as label, post_name as value
+                        from $table
+                        where post_title like '%{$title}%'
+                        and post_type in ('page', 'post')
+                    ";
+                    break;
+                case 'category':
+                case 'post_tag':
+                    $terms_table = $this->dbFacade->executeDbFunction('terms');
+                    $taxonomy_table = $this->dbFacade->executeDbFunction('term_taxonomy');
+                    $sql = "
+                        SELECT t.name AS label, t.slug AS value
+                        FROM $taxonomy_table tt
+                        INNER JOIN $terms_table t ON t.term_id = tt.term_id
+                        WHERE LOWER(t.name) LIKE LOWER('%{$title}%')
+                        AND tt.taxonomy = {$_REQUEST['type']}
+                    ";
+                    break;
+            }
+
+            $results = $this->dbFacade->executeQuery($sql, 'get_results');
+        }
+
+        catch (Exception $e) {
+            echo $this->formatExceptionMessage($e);
+        }
+
+        if (is_array($results)) {
+            echo json_encode($results);
+        }
+
+        die();
+    }
     /*
 
 
 
-    public function setTitleAndLinkByCategory() {
-        if ($this->shortcode['type'] != 'cat_id' && $this->shortcode['type'] != 'cat_slug') {
-            return null;
-        }
-
-        elseif ($this->shortcode['type'] != 'cat_id' && !is_numeric($this->shortcode['value'])) {
-            throw New Exception('You must provide a numeric category ID for type="cat_id"', 'p2p');
-        }
-
-        elseif ($this->shortcode['type'] != 'cat_slug' && !strlen($this->shortcode['value'])) {
-            throw New Exception(__('You must provide a category slug for type="cat_slug"', 'p2p'));
-        }
-
-        elseif ($this->shortcode['type'] != 'cat_id' && is_numeric($this->shortcode['value'])) {
-            $categorySlug = get_cat_name($this->shortcode['value']);
-            $categoryId = $this->shortcode['value'];
-        }
-
-        elseif ($this->shortcode['type'] != 'cat_slug' && strlen($this->shortcode['value'])) {
-            $categorySlug = $this->shortcode['value'];
-            $categoryId = get_cat_ID($this->shortcode['value']);
-        }
-
-        // we shouldn't get here
-        else {
-            throw New Exception('Unknown error', 'p2p');
-        }
 
         $category = get_category_by_slug($categorySlug);
 
