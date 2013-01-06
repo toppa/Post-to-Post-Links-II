@@ -1,23 +1,56 @@
-<!--
-  This file is part of Post-to-Post Links II. Please see the
-  post-to-post-links.php file for copyright and license information.
+<script>
+    jQuery(document).ready(function($) {
+        $("#buttonable_p2p_value").focus();
 
-  @author Michael Toppa
-  @version 0.2
-  @package Post2Post
--->
+        $("#buttonable_p2p_value").autocomplete({
+            source: "/wordpress/wp-admin/admin-ajax.php?action=p2p&type=" + $('#buttonable_p2p_type').val(),
+            minLength: 3,
+            delay: 300
+        });
+
+        $('#buttonable_p2p_form').submit(function(ev) {
+            if (!$('#buttonable_p2p_value').val()) {
+                alert('Please enter a slug or ID');
+                return false;
+            }
+
+            if (tinyMCE) {
+                $('#buttonable_p2p_value').val(
+                    $('#buttonable_p2p_value').val().replace(/\"/g, "&quot;")
+                );
+
+                $('#buttonable_p2p_anchor').val(
+                    $('#buttonable_p2p_anchor').val().replace(/\"/g, "'")
+                );
+
+                $('#buttonable_p2p_attributes').val(
+                    $('#buttonable_p2p_attributes').val().replace(/"/g, "'")
+                );
+
+                var replace = '[p2p type="' + $('#buttonable_p2p_type').val()
+                    + '" value="' + $('#buttonable_p2p_value').val() + '"'
+                    + ($('#buttonable_p2p_anchor').val() ? (' anchor="' + $('#buttonable_p2p_anchor').val() + '"') : '')
+                    + ($('#buttonable_p2p_attributes').val() ? (' attributes="' + $('#buttonable_p2p_attributes').val() + '"') : '')
+                    + ']'
+                    + tinyMCE.activeEditor.selection.getContent()
+                    + '[/p2p]';
+                tinyMCEPopup.execCommand('mceReplaceContent', false, replace);
+                tinyMCEPopup.close();
+                ev.preventDefault();
+            }
+        });
+    });
+</script>
+
 
 <div id="buttonable_p2p_dialog" title="Post-to-Post Link Tag" class="buttonable_dialog">
     <form id="buttonable_p2p_form">
         <table class="form-table">
         <tr>
         <th class="p2p_title"><select name="type" id="buttonable_p2p_type">
-            <option value="slug" selected="selected"><?php _e("Post/Page Slug", 'p2p'); ?></option>
-            <option value="id"><?php _e("Post/Page ID", 'p2p'); ?></option>
-            <option value="cat_slug"><?php _e("Category Slug", 'p2p'); ?></option>
-            <option value="cat_id"><?php _e("Category ID", 'p2p'); ?></option>
-            <option value="tag_slug"><?php _e("Tag Slug", 'p2p'); ?></option>
-            <option value="tag_id"><?php _e("Tag ID", 'p2p'); ?></option>
+            <option value="slug" selected><?php _e("Post/Page Slug", 'p2p'); ?></option>
+            <option value="category"><?php _e("Category Slug", 'p2p'); ?></option>
+            <option value="post_tag"><?php _e("Tag Slug", 'p2p'); ?></option>
         </select></th>
         <td><input type="text" name="value" id="buttonable_p2p_value" size="20" /></td>
         </tr>
