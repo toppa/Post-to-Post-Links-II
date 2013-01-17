@@ -22,7 +22,6 @@ class Post2Post {
         add_action('init', array($this, 'addTinyMceButton'));
         add_shortcode('p2p', array($this, 'handleShortcode'));
         add_action('wp_ajax_p2p', array($this, 'ajaxGetMatches'));
-
     }
 
     public function addAdminScripts($hook) {
@@ -213,10 +212,10 @@ class Post2Post {
                     . $this->functionsFacade->escHtml($slug)
                     . '"'
             );
-
         }
 
         $this->title = $term->name;
+        return array($this->title, $this->linkUrl);
     }
 
     public function setLinkText($text = null) {
@@ -268,16 +267,17 @@ class Post2Post {
 
             switch ($_REQUEST['type']) {
                 case 'slug':
-                    $table = $this->dbFacade->executeDbFunction('posts');
+                    $posts_table = $this->dbFacade->executeDbFunction('posts');
                     $sql = "
                         select post_title as label, post_name as value
-                        from $table
+                        from $posts_table
                         where post_title like '%{$title}%'
                         and post_type in ('page', 'post')
                     ";
                     break;
                 case 'category':
                 case 'post_tag':
+                    $type = $this->dbFacade->checkIsStringAndEscape($_REQUEST['type']);
                     $terms_table = $this->dbFacade->executeDbFunction('terms');
                     $taxonomy_table = $this->dbFacade->executeDbFunction('term_taxonomy');
                     $sql = "
@@ -285,7 +285,7 @@ class Post2Post {
                         FROM $taxonomy_table tt
                         INNER JOIN $terms_table t ON t.term_id = tt.term_id
                         WHERE LOWER(t.name) LIKE LOWER('%{$title}%')
-                        AND tt.taxonomy = {$_REQUEST['type']}
+                        AND tt.taxonomy = $type
                     ";
                     break;
             }
@@ -303,56 +303,7 @@ class Post2Post {
 
         die();
     }
-    /*
 
-
-
-
-        $category = get_category_by_slug($categorySlug);
-
-        if (!is_object($category)) {
-            throw New Exception(
-                __('There seems to not be a category with slug', 'p2p')
-                    . ' "'
-                    . $this->shortcode['value']
-                    . '"'
-            );
-        }
-
-        $this->link = get_category_link($categoryId);
-        return array($this->title, $this->link);
-    }
-
-
-elseif (($type == 'tag_id' && is_numeric($value)) || ($type == 'tag_slug' && is_string($value))) {
-			if ($type == 'tag_slug') {
-                $sql = $wpdb->prepare("select term_id from {$wpdb->terms} where slug = %s", $value);
-                $tag_id = $wpdb->get_var($sql);
-				
-            }else{
-				$tag_id = $value;
-			}
-			
-			$tag_obj = &get_tag($tag_id);
-			
-			if ( empty($tag_obj) ) {
-				if($type == 'tag_slug'){
-					return Post2Post::reportError('There seems to not be a tag with slug "'.$value.'"');
-				}else{
-					return Post2Post::reportError('There seems to not be a tag with id "'.$tag_id.'"');
-				}
-			}
-			
-			$title = $tag_obj->name;
-
-            $permalink = get_tag_link($tag_id);
-        }
-
-        else {
-            return Post2Post::reportError(__("Invalid post-to-post links tag", P2P_L10N_NAME));
-        }
-
-*/
     public function formatExceptionMessage($e) {
         return '<p><strong>'
             . __('Post to Post Links II error', 'p2p')
