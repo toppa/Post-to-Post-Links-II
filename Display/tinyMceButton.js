@@ -17,7 +17,7 @@ jQuery(document).ready(function($) {
             ed.addButton('p2p', {
                 title : 'Post to Post Link',
                 cmd : 'p2p',
-                image: url + '/../../shashin/Admin/Display/images/arrow_refresh.png'
+                image: url + '/p2p-button.png'
             });
         },
         getInfo : function() {
