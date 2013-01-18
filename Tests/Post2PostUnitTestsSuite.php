@@ -3,12 +3,13 @@
 // this is needed for simpletest's addFile method
 set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__));
 
-$p2pTestsAutoLoaderPath = dirname(__FILE__) . '/../../toppa-plugin-libraries-for-wordpress/ToppaAutoLoaderWp.php';
+$p2pPath = dirname(dirname(__FILE__));
+$p2pParentDir = basename($p2pPath);
+$p2pAutoLoaderPath = $p2pPath . '/lib/P2pAutoLoader.php';
 
-if (file_exists($p2pTestsAutoLoaderPath)) {
-    require_once($p2pTestsAutoLoaderPath);
-    $p2pTestsToppaAutoLoader = new ToppaAutoLoaderWp('/toppa-plugin-libraries-for-wordpress');
-    $p2pTestsAutoLoader = new ToppaAutoLoaderWp('/post-to-post-links-ii');
+if (file_exists($p2pAutoLoaderPath)) {
+    require_once($p2pAutoLoaderPath);
+    new P2pAutoLoader('/' . $p2pParentDir . '/lib');
 }
 
 class P2pUnitTestsSuite extends TestSuite {

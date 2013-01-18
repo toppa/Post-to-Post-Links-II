@@ -1,7 +1,6 @@
 <?php
 
 class Post2Post {
-    private $autoLoader;
     private $functionsFacade;
     private $dbFacade;
     private $shortcode;
@@ -11,8 +10,7 @@ class Post2Post {
     private $linkAnchor;
     private $p2pLink;
 
-    public function __construct(ToppaAutoLoader $autoLoader, ToppaFunctionsFacade $functionsFacade, ToppaDatabaseFacade $dbFacade) {
-        $this->autoLoader = $autoLoader;
+    public function __construct(p2pFunctionsFacade $functionsFacade, p2pDatabaseFacade $dbFacade) {
         $this->functionsFacade = $functionsFacade;
         $this->dbFacade = $dbFacade;
     }
@@ -46,7 +44,7 @@ class Post2Post {
     }
 
     public function addTinyMcePlugin($plugin_array) {
-        $plugin_array['p2p'] = $this->functionsFacade->getPluginsUrl('/Display/tinyMceButton.js', __FILE__);
+        $plugin_array['p2p'] = $this->functionsFacade->getPluginsUrl('/display/tinyMceButton.js', __FILE__);
         return $plugin_array;
     }
 

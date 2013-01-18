@@ -8,19 +8,22 @@ Version: 0.3
 Author URI: http://www.toppa.com
 */
 
-$p2pAutoLoaderPath = dirname(__FILE__) . '/../toppa-plugin-libraries-for-wordpress/ToppaAutoLoaderWp.php';
+$p2pPath = dirname(__FILE__);
+$p2pParentDir = basename(dirname(__FILE__));
+
 add_action('wpmu_new_blog', 'p2pActivateForNewNetworkSite');
 register_activation_hook(__FILE__, 'p2pActivate');
 register_deactivation_hook(__FILE__, 'p2pDeactivateForNetworkSites');
-load_plugin_textdomain('p2p', false, basename(dirname(__FILE__)) . '/Languages/');
+load_plugin_textdomain('p2p', false, $p2pParentDir . '/languages/');
+
+$p2pAutoLoaderPath = $p2pPath . '/lib/P2pAutoLoader.php';
 
 if (file_exists($p2pAutoLoaderPath)) {
     require_once($p2pAutoLoaderPath);
-    $p2pToppaAutoLoader = new ToppaAutoLoaderWp('/toppa-plugin-libraries-for-wordpress');
-    $p2pAutoLoader = new ToppaAutoLoaderWp('/post-to-post-links-ii');
-    $functionFacade = new ToppaFunctionsFacadeWp();
-    $dbFacade = new ToppaDatabaseFacadeWp();
-    $p2p = new Post2Post($p2pAutoLoader, $functionFacade, $dbFacade);
+    new P2pAutoLoader('/' . $p2pParentDir . '/lib');
+    $functionsFacade = new P2pFunctionsFacade();
+    $dbFacade = new P2pDatabaseFacade();
+    $p2p = new Post2Post($functionsFacade, $dbFacade);
     $p2p->run();
 }
 
@@ -36,15 +39,7 @@ function p2pActivateForNewNetworkSite($blog_id) {
 }
 
 function p2pActivate() {
-    $autoLoaderPath = dirname(__FILE__) . '/../toppa-plugin-libraries-for-wordpress/ToppaAutoLoaderWp.php';
-
-    if (!file_exists($autoLoaderPath)) {
-        $message = __('To activate Post to Post Links II you need to first install', 'p2p')
-            . ' <a href="http://wordpress.org/extend/plugins/toppa-plugin-libraries-for-wordpress/">Toppa Plugins Libraries for WordPress</a>';
-        p2pCancelActivation($message);
-    }
-
-    elseif (!function_exists('spl_autoload_register')) {
+    if (!function_exists('spl_autoload_register')) {
         p2pCancelActivation(__('You must have at least PHP 5.1.2 to use Post to Post Links II', 'p2p'));
     }
 
@@ -52,9 +47,8 @@ function p2pActivate() {
         p2pCancelActivation(__('You must have at least WordPress 3.0 to use Post to Post Links II', 'p2p'));
     }
 
-    // activate
     elseif (method_exists('Buttonable', 'registerButton')) {
-        $dialogPath = dirname(__FILE__) . '/Display/buttonDialog.html';
+        $dialogPath = dirname(__FILE__) . '/display/buttonDialog.html';
         $status = Buttonable::registerButton('p2p', 'p2p', __('Add Post-to-Post Link', 'p2p'), 'ed_p2p', 'n', 'y', $dialogPath);
 
         if (is_string($status)) {
@@ -64,13 +58,13 @@ function p2pActivate() {
 }
 
 function p2pCancelActivation($message) {
-    deactivate_plugins(basename(dirname(__FILE__)) . '/' . basename(__FILE__), true);
+    deactivate_plugins(__FILE__);
     wp_die($message);
 }
 
 function p2pDeactivateForNetworkSites() {
-    $toppaAutoLoader = new ToppaAutoLoaderWp('/toppa-plugin-libraries-for-wordpress');
-    $functionsFacade = new ToppaFunctionsFacadeWp();
+    new P2pAutoLoader('/' . basename(dirname(__FILE__)) . '/lib');
+    $functionsFacade = new P2pFunctionsFacade();
     $functionsFacade->callFunctionForNetworkSites('p2pDeactivate');
 }
 

@@ -1,8 +1,7 @@
 <?php
 
-Mock::generate('ToppaAutoLoaderWp');
-Mock::generate('ToppaFunctionsFacadeWp');
-Mock::generate('ToppaDatabaseFacadeWp');
+Mock::generate('P2pFunctionsFacade');
+Mock::generate('P2pDatabaseFacade');
 
 class UnitPost2Post extends UnitTestCase {
     private $post2post;
@@ -12,12 +11,11 @@ class UnitPost2Post extends UnitTestCase {
     }
 
     private function basicSetUp() {
-        $this->finalizeSetUp(new MockToppaFunctionsFacadeWp(), new MockToppaDatabaseFacadeWp());
+        $this->finalizeSetUp(new MockP2pFunctionsFacade(), new MockP2pDatabaseFacade());
     }
 
     private function finalizeSetUp($functionsFacade, $dbFacade) {
-        $autoLoader = new MockToppaAutoLoaderWp();
-        $this->post2post = new Post2Post($autoLoader, $functionsFacade, $dbFacade);
+        $this->post2post = new Post2Post($functionsFacade, $dbFacade);
     }
 
     public function testSetShortcodeWithInvalidArgumentType() {
@@ -85,9 +83,9 @@ class UnitPost2Post extends UnitTestCase {
     }
 
     public function testSetTitleAndLinkUrlFromPostSlugWithPostNotFound() {
-        $functionsFacade = new MockToppaFunctionsFacadeWp();
+        $functionsFacade = new MockP2pFunctionsFacade();
         $functionsFacade->setReturnValue('escHtml', 'hello-world');
-        $dbFacade = new MockToppaDatabaseFacadeWp();
+        $dbFacade = new MockP2pDatabaseFacade();
         $dbFacade->setReturnValue('selectSqlRow', null);
         $this->finalizeSetUp($functionsFacade, $dbFacade);
 
@@ -102,10 +100,10 @@ class UnitPost2Post extends UnitTestCase {
     }
 
     private function successfulPostQuerySetUp() {
-        $functionsFacade = new MockToppaFunctionsFacadeWp();
+        $functionsFacade = new MockP2pFunctionsFacade();
         $functionsFacade->setReturnValue('getPermalink', 'http://localhost/wordpress/hello-world');
         $functionsFacade->setReturnValue('escHtml', 'my link text');
-        $dbFacade = new MockToppaDatabaseFacadeWp();
+        $dbFacade = new MockP2pDatabaseFacade();
         $dbFacade->setReturnValue('sqlSelectRow', array('ID' => 1234, 'post_title' => 'Hello World!'));
         $this->finalizeSetUp($functionsFacade, $dbFacade);
     }
@@ -131,10 +129,10 @@ class UnitPost2Post extends UnitTestCase {
     }
 
     public function testSetTitleAndLinkUrlFromPostIdWithPostNotFound() {
-        $functionsFacade = new MockToppaFunctionsFacadeWp();
+        $functionsFacade = new MockP2pFunctionsFacade();
         $functionsFacade->setReturnValue('getPost', null);
         $functionsFacade->setReturnValue('escHtml', '1234');
-        $this->finalizeSetUp($functionsFacade, new MockToppaDatabaseFacadeWp());
+        $this->finalizeSetUp($functionsFacade, new MockP2pDatabaseFacade());
 
         try {
             $this->post2post->setShortcode(array('id' => '1234'));
@@ -147,11 +145,11 @@ class UnitPost2Post extends UnitTestCase {
     }
 
     public function testSetTitleAndLinkUrlFromPostIdWithPostFound() {
-        $functionsFacade = new MockToppaFunctionsFacadeWp();
+        $functionsFacade = new MockP2pFunctionsFacade();
         $post = array('post_title' => 'Hello world!');
         $functionsFacade->setReturnValue('getPost', $post);
         $functionsFacade->setReturnValue('getPermalink', 'http://localhost/hello-world');
-        $this->finalizeSetUp($functionsFacade, new MockToppaDatabaseFacadeWp());
+        $this->finalizeSetUp($functionsFacade, new MockP2pDatabaseFacade());
 
         $this->post2post->setShortcode(array('id' => '1234'));
         $this->post2post->setTitleAndLinkUrlFromPostId();
