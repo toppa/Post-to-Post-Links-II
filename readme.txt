@@ -3,7 +3,7 @@ Contributors: toppa
 Donate link: http://www.toppa.com/post-to-post-links-wordpress-plugin
 Tags: post, posts, admin, categories, category, editor, links, pages, page, permalink, shortcode, tags, tag
 Requires at least: 3.0
-Tested up to: 3.4.1
+Tested up to: 3.5
 Stable tag: 1.0
 License: GPLv2 or later
 
@@ -51,6 +51,11 @@ Upload to your plugin folder just like any other plugin, and activate.
 If you install the Extensible HTML Editor Buttons plugin, you will need to de-activate and re-active Post-to-Post Links II to enable its HTML editor button.
 
 == Changelog ==
+
+= 1.0 =
+* added visual editor button and dialog
+* added support for named anchors
+* refactored and added tests
 
 = 0.3 =
 * made multi-site compatible
