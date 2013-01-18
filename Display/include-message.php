@@ -1,6 +1,6 @@
 <?php
 /**
- * Display informational or error message in the Post-to-Post Links II
+ * display informational or error message in the Post-to-Post Links II
  * admin panels.
  *
  * This file is part of Post-to-Post Links II. Please see the

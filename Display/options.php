@@ -16,7 +16,7 @@
     <h2><?php _e("Post-to-Post Links II Settings", P2P_L10N_NAME); ?></h2>
 
     <?php if (strlen($message)) {
-        require (P2P_DIR . '/Display/include-message.php');
+        require (P2P_DIR . '/display/include-message.php');
     } ?>
 
     <p><?php _e("Note much to do here, except uninstall.", P2P_L10N_NAME); ?></p>
