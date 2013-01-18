@@ -3,47 +3,52 @@ Contributors: toppa
 Donate link: http://www.toppa.com/post-to-post-links-wordpress-plugin
 Tags: post, posts, admin, categories, category, editor, links, pages, page, permalink, shortcode, tags, tag
 Requires at least: 3.0
-Tested up to: 3.3.1
-Stable tag: 0.3
+Tested up to: 3.4.1
+Stable tag: 1.0
+License: GPLv2 or later
 
-Using a shortcode, easily link to another post, page, or category in your WordPress blog.
+Using a shortcode, easily link to another post, page, tag, or category in your WordPress blog.
 
 == Description ==
 
-Using a shortcode, you can create a link to another post, page, tag, or category. You use the ID number or the slug to identify what you are linking to. The link will automatically use the title of the post, page, tag, or category as the link text, or you can supply your own link text.
+Post-to-Post Links II lets you easily create a link to another post, page, tag, or category on your site. With a dialog form that uses autocomplete to look up posts by title, it's very easy to find your link destination. The link will automatically use the title of the post, page, tag, or category as the link text, or you can supply your own link text.
 
-It makes linking within your site more convenient, and it means your links won't break if you ever change your permalink structure or change the parent-child relationships of your categories.
+It generates a shortcode instead of an HTML link. This means your links won't break if you ever change your permalink structure, or change the organization of your categories.
 
-If you also install the Koumpounophobia plugin, you will get a Post-to-Post Links II button added to your HTML Editor. You can use that button to add the Post-to-Post Links II shortcode to your post. If you don't have Koumpounophobia, or you're using the Visual Editor, here are a couple examples of the shortcode:
+You can also specify a named anchor target for the link, and enter any additional attributes you need (such as an "id" or "name" for use with javascript or css).
 
-[p2p type="id" value="53"]
+It includes a button for the visual editor to launch the dialog form for looking up posts. If you prefer the HTML editor, you can install my Extensible HTML Editor Buttons plugin, and Post-to-Post Links II will use it to register a button in the HTML editor button bar.
 
-[p2p type="slug" value="hello-world" text="read my Hello World post" attributes="target='_blank'"]
+**Examples**
 
-Possible values for "type" are:
+Here are some example of the shortcode:
 
-* slug: a post or page slug
-* id: a post or page ID number
-* cat_slug: a category slug
-* cat_id: a category ID number
-* tag_slug: a tag slug
-* tag_id: a tag ID number
+A simple link to the "Hello World" post:
+[p2p type="slug" value="hello-world"]
 
-The "value" attribute is either the slug or ID number of the linked post, page, category, or tag.
+A link to a category page, with custom link text, and an ID:
+[p2p type="category" value="around-the-world" text="Read about my trip around the world" attributes="id='#world-travel'"]
 
-The "text" attribute provides the text for the link. It's optional - if you leave it out, the title of the post, page, tag, or category will be used.
+A link to a named anchor on a page:
+[p2p type="slug" value="hello-world" anchor="more"]
 
-"attributes" is optional, and allows you to provide any other attributes you'd like for the link, such as a target, title, onclick, etc. Note that you need to use single quotes here, since the value itself is delimited by double quotes.
+**Shortcode Attributes**
 
-This plugin is inspired by the "Post-to-Post Links" plugin written (but no longer maintained by) Scott Reilly. Unfortunately though, it cannot interpret the old tags. Post-to-Post Links II uses WordPress' robust shortcode functionality, which is not compatible with the syntax Scott used in Easy Post-to-Post Links.
+* type: can be "slug" (for a post or page), "category", or "post_tag" (for tags)
+* value: the slug of the linked post, page, category, or tag (with the dialog form this is entered for you automatically, after you look up the post, category, or tag by title)
+* text (optional): provides text for the link (if you leave it out, the title of the post, tag, or category will be used).
+* attributes (optional): allows you to provide any other attributes you'd like for the link, such as a target, title, onclick, etc. Note that you need to use single quotes here, since the value itself is delimited by double quotes.
+* anchor (optional): a named anchor on the page you want to link to.
+
+If for any reason you prefer to type the shortcode by hand instead of using the dialog form, there is a shorthand for it.  Instead of using "type" and "value", you can use any of the types as an attribute, for example [p2p slug="hello-world"].
+
+This plugin was inspired by the "Post-to-Post Links" plugin written (but no longer maintained by) Scott Reilly.
 
 == Installation ==
 
-**Installation Instructions**
+Upload to your plugin folder just like any other plugin, and activate.
 
-Download the zip file, unzip it, and copy the "post-to-post-links-ii" folder to your plugins directory. Then activate it from your plugin panel. After successful activation, you can start using the shortcode. Post-to-Post Links II will appear in your "Settings" menu (but the only thing there is an uninstall option).
-
-If you have Koumpounophobia installed, the Post-to-Post Links button will automatically appear in your HTML Editor after Post-to-Post Links II is activated.
+If you install the Extensible HTML Editor Buttons plugin, you will need to de-activate and re-active Post-to-Post Links II to enable its HTML editor button.
 
 == Changelog ==
 
