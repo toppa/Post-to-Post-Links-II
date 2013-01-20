@@ -5,8 +5,8 @@ jQuery(document).ready(function($) {
                 ed.windowManager.open({
                     file : url + '/tinyMceButtonDialog.php',
                     title : 'Post to Post Links',
-                    width : 400,
-                    height : 200,
+                    width : 500,
+                    height : 350,
                     inline : 'yes',
                     resizable : 'yes'
                 }, {

@@ -7,9 +7,24 @@
     <link rel="stylesheet" href="../../../../wp-includes/js/tinymce/themes/advanced/skins/wp_theme/dialog.css">
     <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/smoothness/jquery-ui.css">
     <style>
-        .p2p_title {
+        #buttonable_p2p_form th {
             text-align: left;
             font-weight: normal;
+            font-size: 1.2em;
+            padding: 3px 0;
+        }
+
+        #buttonable_p2p_form input {
+            font-size: 1.2em;
+            padding: 1px;
+        }
+
+        #buttonable_p2p_form input[type="submit"] {
+            padding: 5px;
+        }
+
+        #buttonable_p2p_form select {
+            font-size: 1.08em;
         }
     </style>
 </head>
