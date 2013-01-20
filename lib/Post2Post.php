@@ -48,9 +48,9 @@ class Post2Post {
         return $plugin_array;
     }
 
-    public function handleShortcode($userShortcode, $text) {
+    public function handleShortcode($userShortcode, $text = null) {
         try {
-            $this->setShortcode($userShortcode, $text);
+            $this->setShortcode($userShortcode);
 
             if ($this->shortcode['slug']) {
                 $this->setTitleAndLinkUrlFromPostSlug();
@@ -221,6 +221,7 @@ class Post2Post {
             $this->linkText = $text;
         }
 
+        // for backwards compatibility with older versions
         elseif ($this->shortcode['text']) {
             $this->linkText = $this->shortcode['text'];
         }
@@ -283,7 +284,7 @@ class Post2Post {
                         FROM $taxonomy_table tt
                         INNER JOIN $terms_table t ON t.term_id = tt.term_id
                         WHERE LOWER(t.name) LIKE LOWER('%{$title}%')
-                        AND tt.taxonomy = $type
+                        AND tt.taxonomy = '$type'
                     ";
                     break;
             }
