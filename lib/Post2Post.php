@@ -44,7 +44,7 @@ class Post2Post {
     }
 
     public function addTinyMcePlugin($plugin_array) {
-        $plugin_array['p2p'] = $this->functionsFacade->getPluginsUrl('/display/tinyMceButton.js', __FILE__);
+        $plugin_array['p2p'] = $this->functionsFacade->getPluginsUrl('/display/tinyMceButton.js', dirname(__FILE__));
         return $plugin_array;
     }
 
