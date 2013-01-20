@@ -4,7 +4,7 @@ Plugin Name: Post-to-Post Links II
 Plugin URI:http://www.toppa.com/post-to-post-links-wordpress-plugin
 Description: Using a shortcode, easily link to another post, page, or category in your WordPress blog.
 Author: Michael Toppa
-Version: 0.3
+Version: 1.0
 Author URI: http://www.toppa.com
 */
 
