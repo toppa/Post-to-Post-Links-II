@@ -7,30 +7,30 @@ Tested up to: 3.5
 Stable tag: 1.0
 License: GPLv2 or later
 
-Using a shortcode, easily link to another post, page, tag, or category in your WordPress blog.
+Using a modal dialog window in the post editor, easily link to another post, page, tag, or category in your WordPress site.
 
 == Description ==
+
+[youtube http://www.youtube.com/watch?v=KTwM5P6TohI]
 
 Post-to-Post Links II lets you easily create a link to another post, page, tag, or category on your site. With a dialog form that uses autocomplete to look up posts by title, it's very easy to find your link destination. The link will automatically use the title of the post, page, tag, or category as the link text, or you can supply your own link text.
 
 It generates a shortcode instead of an HTML link. This means your links won't break if you ever change your permalink structure, or change the organization of your categories.
 
-You can also specify a named anchor target for the link, and enter any additional attributes you need (such as an "id" or "name" for use with javascript or css).
+You can also specify a named anchor for the link, and enter any additional attributes you need (such as an "id" or "name" for use with javascript or css).
 
 It includes a button for the visual editor to launch the dialog form for looking up posts. If you prefer the HTML editor, you can install my [Extensible HTML Editor Buttons](http://wordpress.org/extend/plugins/extensible-html-editor-buttons/) plugin, and Post-to-Post Links II will use it to register a button in the HTML editor button bar.
 
 **Examples**
 
-Here are some example of the shortcode:
-
 A simple link to the "Hello World" post:
-[p2p type="slug" value="hello-world"]
+`[p2p type="slug" value="hello-world"]My first post[/p2p]`
 
-A link to a category page, with custom link text, and an ID:
-[p2p type="category" value="around-the-world" text="Read about my trip around the world" attributes="id='#world-travel'"]
+A link to a category page that opens in a new window:
+`[p2p type="category" value="around-the-world" attributes="target='_blank'"]Read about my trip around the world[/p2p]`
 
 A link to a named anchor on a page:
-[p2p type="slug" value="hello-world" anchor="more"]
+`[p2p type="slug" value="hello-world" anchor="more"]My first post[/p2p]`
 
 **Get Help**
 
@@ -40,19 +40,8 @@ Enter a post in [the wordpress.org support forum for Post to Post Links II](http
 
 * Provide a language translation - [here's how](http://weblogtoolscollection.com/archives/2007/08/27/localizing-a-wordpress-plugin-using-poedit/)
 * Fork [the Post to Post Links II repository on github](https://github.com/toppa/Post-to-Post-Links-II) and make a code contribution
-* [Help answer questions in the support forum](http://wordpress.org/support/plugin/post-to-post-links-ii)
-* If you tip your pizza delivery guy, tip your plugin developer - [make a donation]((http://www.toppa.com/post-to-post-links-wordpress-plugin/)
-
-
-**Shortcode Attributes**
-
-* type: can be "slug" (for a post or page), "category", or "post_tag" (for tags)
-* value: the slug of the linked post, page, category, or tag (with the dialog form this is entered for you automatically, after you look up the post, category, or tag by title)
-* text (optional): provides text for the link (if you leave it out, the title of the post, tag, or category will be used).
-* attributes (optional): allows you to provide any other attributes you'd like for the link, such as a target, title, onclick, etc. Note that you need to use single quotes here, since the value itself is delimited by double quotes.
-* anchor (optional): a named anchor on the page you want to link to.
-
-If for any reason you prefer to type the shortcode by hand instead of using the dialog form, there is a shorthand for it.  Instead of using "type" and "value", you can use any of the types as an attribute, for example [p2p slug="hello-world"].
+* If you're savvy user of the plugin, [answer questions in the support forum](http://wordpress.org/support/plugin/post-to-post-links-ii)
+* If you tip your pizza delivery guy, tip your plugin developer - [make a donation](http://www.toppa.com/post-to-post-links-wordpress-plugin/)
 
 This plugin was inspired by the "Post-to-Post Links" plugin written (but no longer maintained by) Scott Reilly.
 
@@ -66,12 +55,17 @@ If you install the [Extensible HTML Editor Buttons](http://wordpress.org/extend/
 
 Please go to [the Post-to-Post Links II page](http://www.toppa.com/post-to-post-links-wordpress-plugin/) for more information</a>.
 
+== Screenshots ==
+
+1. The modal dialog for selecting your link destination
+
 == Changelog ==
 
 = 1.0 =
-* added visual editor button and dialog
+* added visual editor button and dialog for finding posts
+* added support for highlighting text in the editor to make link text
 * added support for named anchors
-* refactored and added tests
+* refactored and added unit tests
 
 = 0.3 =
 * made multi-site compatible
@@ -88,7 +82,5 @@ Please go to [the Post-to-Post Links II page](http://www.toppa.com/post-to-post-
 * added apply_filters() with tag 'p2p_error_msg', so that the message can be filtered as needed before it is sent to page
 
 = 0.1 = First version
-== Frequently Asked Questions ==
 
-Please go to <a href="http://www.toppa.com/post-to-post-links-wordpress-plugin">the Post-to-Post Links II page for more information</a>.
 
