@@ -17,7 +17,7 @@ It generates a shortcode instead of an HTML link. This means your links won't br
 
 You can also specify a named anchor target for the link, and enter any additional attributes you need (such as an "id" or "name" for use with javascript or css).
 
-It includes a button for the visual editor to launch the dialog form for looking up posts. If you prefer the HTML editor, you can install my Extensible HTML Editor Buttons plugin, and Post-to-Post Links II will use it to register a button in the HTML editor button bar.
+It includes a button for the visual editor to launch the dialog form for looking up posts. If you prefer the HTML editor, you can install my [Extensible HTML Editor Buttons](http://wordpress.org/extend/plugins/extensible-html-editor-buttons/) plugin, and Post-to-Post Links II will use it to register a button in the HTML editor button bar.
 
 **Examples**
 
@@ -31,6 +31,18 @@ A link to a category page, with custom link text, and an ID:
 
 A link to a named anchor on a page:
 [p2p type="slug" value="hello-world" anchor="more"]
+
+**Get Help**
+
+Enter a post in [the wordpress.org support forum for Post to Post Links II](http://wordpress.org/support/plugin/post-to-post-links-ii), and I'll respond there.
+
+**Give Help**
+
+* Provide a language translation - [here's how](http://weblogtoolscollection.com/archives/2007/08/27/localizing-a-wordpress-plugin-using-poedit/)
+* Fork [the Post to Post Links II repository on github](https://github.com/toppa/Post-to-Post-Links-II) and make a code contribution
+* [Help answer questions in the support forum](http://wordpress.org/support/plugin/post-to-post-links-ii)
+* If you tip your pizza delivery guy, tip your plugin developer - [make a donation]((http://www.toppa.com/post-to-post-links-wordpress-plugin/)
+
 
 **Shortcode Attributes**
 
@@ -48,7 +60,11 @@ This plugin was inspired by the "Post-to-Post Links" plugin written (but no long
 
 Upload to your plugin folder just like any other plugin, and activate.
 
-If you install the Extensible HTML Editor Buttons plugin, you will need to de-activate and re-active Post-to-Post Links II to enable its HTML editor button.
+If you install the [Extensible HTML Editor Buttons](http://wordpress.org/extend/plugins/extensible-html-editor-buttons/) plugin, you will need to de-activate and re-active Post-to-Post Links II to enable its HTML editor button.
+
+== Frequently Asked Questions ==
+
+Please go to [the Post-to-Post Links II page](http://www.toppa.com/post-to-post-links-wordpress-plugin/) for more information</a>.
 
 == Changelog ==
 
