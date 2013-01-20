@@ -47,6 +47,8 @@ function p2pActivate() {
         p2pCancelActivation(__('You must have at least WordPress 3.0 to use Post to Post Links II', 'p2p'));
     }
 
+    // if the Extensible HTML Editor Buttons plugin  is installed
+    // activate our custom button and dialog
     elseif (method_exists('Buttonable', 'registerButton')) {
         $dialogPath = dirname(__FILE__) . '/display/buttonDialog.html';
         $status = Buttonable::registerButton('p2p', 'p2p', __('Add Post-to-Post Link', 'p2p'), 'ed_p2p', 'n', 'y', $dialogPath);
