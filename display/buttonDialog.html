@@ -2,7 +2,7 @@
     jQuery(document).ready(function($) {
         $("#buttonable_p2p_value").focus();
 
-        var base_source = "/wordpress/wp-admin/admin-ajax.php?action=p2p&type="
+        var base_source = "../../../../wp-admin/admin-ajax.php?action=p2p&type="
 
         $("#buttonable_p2p_value").autocomplete({
             source: base_source + $('#buttonable_p2p_type').val(),
