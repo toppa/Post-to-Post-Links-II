@@ -49,7 +49,7 @@ function p2pActivate() {
 
     // if the Extensible HTML Editor Buttons plugin  is installed
     // activate our custom button and dialog
-    elseif (method_exists('Buttonable', 'registerButton')) {
+    elseif (is_plugin_active('extensible-html-editor-buttons/start.php')) {
         $dialogPath = dirname(__FILE__) . '/display/buttonDialog.html';
         $status = Buttonable::registerButton('p2p', 'p2p', __('Add Post-to-Post Link', 'p2p'), 'ed_p2p', 'n', 'y', $dialogPath);
 
@@ -71,7 +71,7 @@ function p2pDeactivateForNetworkSites() {
 }
 
 function p2pDeactivate() {
-    if (method_exists('Buttonable', 'deregisterButton')) {
+    if (is_plugin_active('extensible-html-editor-buttons/start.php')) {
         return Buttonable::deregisterButton('p2p');
     }
 
