@@ -123,7 +123,7 @@ class P2pDatabaseFacade {
         }
 
         if ($otherConditions) {
-            ToppaFunctions::throwExceptionIfNotString($otherConditions);
+            $this->throwExceptionIfNotString($otherConditions);
             $sql .= $otherConditions;
         }
 
@@ -243,10 +243,10 @@ class P2pDatabaseFacade {
 
         if ($wpdb->result === false) {
             throw new Exception(
-                __('Database query failed. Error message: ', 'toppalibs')
+                __('Database query failed. Error message: ', 'p2p')
                 . $wpdb->last_error
                 . '<br />'
-                . __('SQL statement: ', 'toppalibs')
+                . __('SQL statement: ', 'p2p')
                 . $sql
             );
         }
@@ -261,7 +261,7 @@ class P2pDatabaseFacade {
 
     public function checkIsStringAndEscape($string) {
         global $wpdb;
-        ToppaFunctions::throwExceptionIfNotString($string);
+        $this->throwExceptionIfNotString($string);
         return $wpdb->escape($string);
     }
 
@@ -276,4 +276,13 @@ class P2pDatabaseFacade {
         global $wpdb;
         return $wpdb->$name;
     }
+
+    public function throwExceptionIfNotString($expectedString) {
+        if (!is_string($expectedString)) {
+            throw new Exception(__('Not a string', 'p2p'));
+        }
+
+        return true;
+    }
+
 }
