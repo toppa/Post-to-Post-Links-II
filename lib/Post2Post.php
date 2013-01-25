@@ -116,8 +116,12 @@ class Post2Post {
         }
 
         $this->shortcode = $userShortcode;
-        array_walk($this->shortcode, array('ToppaFunctions', 'trimCallback'));
+        array_walk($this->shortcode, array($this, 'trimCallback'));
         return $this->shortcode;
+    }
+
+    public function trimCallback(&$string, $key = null) {
+        $string = trim($string);
     }
 
     public function setTitleAndLinkUrlFromPostSlug() {
