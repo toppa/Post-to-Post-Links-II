@@ -3,8 +3,8 @@ Contributors: toppa
 Donate link: http://www.toppa.com/post-to-post-links-wordpress-plugin
 Tags: post, posts, admin, categories, category, editor, links, pages, page, permalink, shortcode, tags, tag
 Requires at least: 3.0
-Tested up to: 3.5
-Stable tag: 1.0.2
+Tested up to: 3.5.1
+Stable tag: 1.0.3
 License: GPLv2 or later
 
 Using a modal dialog window in the post editor, easily link to another post, page, tag, or category in your WordPress site.
@@ -20,6 +20,8 @@ It generates a shortcode instead of an HTML link. This means your links won't br
 You can also specify a named anchor for the link, and enter any additional attributes you need (such as an "id" or "name" for use with javascript or css).
 
 It includes a button for the visual editor to launch the dialog form for looking up posts. If you prefer the HTML editor, you can install my [Extensible HTML Editor Buttons](http://wordpress.org/extend/plugins/extensible-html-editor-buttons/) plugin, and Post-to-Post Links II will use it to register a button in the HTML editor button bar.
+
+It is multi-site compatible.
 
 **Examples**
 
@@ -61,6 +63,8 @@ Please go to [the Post-to-Post Links II page](http://www.toppa.com/post-to-post-
 
 == Changelog ==
 
+= 1.0.3 = Bug fix: infer admin-ajax.php url from current url (the post edit page)
+
 = 1.0.2 = Bug fix: removed remaining calls to Toppa Libraries plugin
 
 = 1.0.1 =
@@ -89,5 +93,3 @@ Please go to [the Post-to-Post Links II page](http://www.toppa.com/post-to-post-
 * added apply_filters() with tag 'p2p_error_msg', so that the message can be filtered as needed before it is sent to page
 
 = 0.1 = First version
-
-
