@@ -104,7 +104,7 @@ class UnitPost2Post extends UnitTestCase {
         $functionsFacade->setReturnValue('getPermalink', 'http://localhost/wordpress/hello-world');
         $functionsFacade->setReturnValue('escHtml', 'my link text');
         $dbFacade = new MockP2pDatabaseFacade();
-        $dbFacade->setReturnValue('sqlSelectRow', array('ID' => 1234, 'post_title' => 'Hello World!'));
+        $dbFacade->setReturnValue('sqlSelectRow', array('ID' => 1234, 'post_title' => 'Hello World!', 'post_status' => 'publish'));
         $this->finalizeSetUp($functionsFacade, $dbFacade);
     }
 
@@ -180,7 +180,7 @@ class UnitPost2Post extends UnitTestCase {
         $this->assertEqual($this->post2post->setLinkAnchor(), '#more');
     }
     
-    public function testSetP2pLink() {
+    public function testSetP2pLinkWithPublishedPost() {
         $this->successfulPostQuerySetUp();
         $this->post2post->setShortcode(array(
             'slug' => 'hello-world',
@@ -192,6 +192,26 @@ class UnitPost2Post extends UnitTestCase {
         $this->post2post->setLinkAnchor();
         $this->post2post->setLinkText();
         $expected = "<a href='http://localhost/wordpress/hello-world#more' title='Hello World!' id='my-id'>my link text</a>";
+        $this->assertEqual($this->post2post->setP2pLink(), $expected);
+    }
+
+    public function testSetP2pLinkWithPendingPost() {
+        $functionsFacade = new MockP2pFunctionsFacade();
+        $functionsFacade->setReturnValue('getPermalink', 'http://localhost/wordpress/hello-world');
+        $functionsFacade->setReturnValue('escHtml', 'my link text');
+        $dbFacade = new MockP2pDatabaseFacade();
+        $dbFacade->setReturnValue('sqlSelectRow', array('ID' => 1234, 'post_title' => 'Hello World!', 'post_status' => 'pending'));
+        $this->finalizeSetUp($functionsFacade, $dbFacade);
+        $this->post2post->setShortcode(array(
+                'slug' => 'hello-world',
+                'anchor' => 'more',
+                'text' => 'my link text',
+                'attributes' => "id='my-id'")
+        );
+        $this->post2post->setTitleAndLinkUrlFromPostSlug();
+        $this->post2post->setLinkAnchor();
+        $this->post2post->setLinkText();
+        $expected = "<i class='p2p-pending-link'>my link text</i> <i class='p2p-pending-note'>[the linked post is not published yet]</i>";
         $this->assertEqual($this->post2post->setP2pLink(), $expected);
     }
 }

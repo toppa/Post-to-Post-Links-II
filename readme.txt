@@ -4,12 +4,14 @@ Donate link: http://www.toppa.com/post-to-post-links-wordpress-plugin
 Tags: post, posts, admin, categories, category, editor, links, pages, page, permalink, shortcode, tags, tag
 Requires at least: 3.0
 Tested up to: 3.5.1
-Stable tag: 1.0.3
+Stable tag: 1.1
 License: GPLv2 or later
 
 Using a modal dialog window in the post editor, easily link to another post, page, tag, or category in your WordPress site.
 
 == Description ==
+
+*New in version 1.1:* For posts not yet published (pending, future, or draft) Post-to-Post Links II won't try to link to them. Instead it shows the link text along with a note saying the post is not published yet (with both inside css classes if you want to style the appearance).
 
 [youtube http://www.youtube.com/watch?v=KTwM5P6TohI]
 
@@ -62,6 +64,8 @@ Please go to [the Post-to-Post Links II page](http://www.toppa.com/post-to-post-
 1. The modal dialog for selecting your link destination
 
 == Changelog ==
+
+= 1.1 = For posts not yet published (pending, future, or draft) don't link to them. Instead show the link text along with a note saying the post is not published yet (with both inside a css class for custom styling)
 
 = 1.0.3 = Bug fix: infer admin-ajax.php url from current url (the post edit page)
 
