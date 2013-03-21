@@ -3,8 +3,14 @@
         $("#buttonable_p2p_value").focus();
 
         // for example: window.location.pathname = /wordpress/wp-admin/post.php
-        var current_url = window.location.pathname;
-        var ajax_url = current_url.substring(0, current_url.lastIndexOf('/')) + "/admin-ajax.php?action=p2p&type=";
+        var admin_url = window.location.pathname;
+
+        // but in the visual editor we get the path of the plugin, not post.php
+        if (admin_url.indexOf('/wp-admin/') == -1) {
+            admin_url = admin_url.replace(/\/wp-content\/.*/, '/wp-admin/');
+        }
+
+        var ajax_url = admin_url.substring(0, admin_url.lastIndexOf('/')) + "/admin-ajax.php?action=p2p&type=";
 
         $("#buttonable_p2p_value").autocomplete({
             source: ajax_url + $('#buttonable_p2p_type').val(),
