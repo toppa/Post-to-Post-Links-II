@@ -4,14 +4,14 @@ Donate link: http://www.toppa.com/post-to-post-links-wordpress-plugin
 Tags: post, posts, admin, categories, category, editor, links, pages, page, permalink, shortcode, tags, tag
 Requires at least: 3.0
 Tested up to: 3.5.1
-Stable tag: 1.1.1
+Stable tag: 1.2
 License: GPLv2 or later
 
 Using a modal dialog window in the post editor, easily link to another post, page, tag, or category in your WordPress site.
 
 == Description ==
 
-*New in version 1.1:* For posts not yet published (pending, future, or draft) Post-to-Post Links II won't try to link to them. Instead it shows the link text along with a note saying the post is not published yet (with both inside css classes if you want to style the appearance).
+*New in version 1.2:* Support for custom post types
 
 [youtube http://www.youtube.com/watch?v=KTwM5P6TohI]
 
@@ -22,6 +22,8 @@ It generates a shortcode instead of an HTML link. This means your links won't br
 You can also specify a named anchor for the link, and enter any additional attributes you need (such as an "id" or "name" for use with javascript or css).
 
 It includes a button for the visual editor to launch the dialog form for looking up posts. If you prefer the HTML editor, you can install my [Extensible HTML Editor Buttons](http://wordpress.org/extend/plugins/extensible-html-editor-buttons/) plugin, and Post-to-Post Links II will use it to register a button in the HTML editor button bar.
+
+For posts not yet published (pending, future, or draft) Post-to-Post Links II won't try to link to them. Instead it shows the link text along with a note saying the post is not published yet (with both inside css classes if you want to style the appearance).
 
 It is multi-site compatible.
 
@@ -64,6 +66,8 @@ Please go to [the Post-to-Post Links II page](http://www.toppa.com/post-to-post-
 1. The modal dialog for selecting your link destination
 
 == Changelog ==
+
+= 1.2 = Added support for custom post types
 
 = 1.1.1 = Bug fix: the admin-ajax.php url resolution fix in 1.0.3 only worked when in the HTML editor; now also fixed for the Visual editor
 

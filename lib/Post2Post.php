@@ -285,7 +285,7 @@ class Post2Post {
                         select post_title as label, post_name as value
                         from $posts_table
                         where post_title like '%{$title}%'
-                        and post_type in ('page', 'post')
+                        and post_type not in ('revision', 'attachment')
                     ";
                     break;
                 case 'category':
