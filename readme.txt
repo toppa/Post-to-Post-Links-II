@@ -4,7 +4,7 @@ Donate link: http://www.toppa.com/post-to-post-links-wordpress-plugin
 Tags: post, posts, admin, categories, category, editor, links, pages, page, permalink, shortcode, tags, tag
 Requires at least: 3.0
 Tested up to: 3.5.1
-Stable tag: 1.2
+Stable tag: 1.2.1
 License: GPLv2 or later
 
 Using a modal dialog window in the post editor, easily link to another post, page, tag, or category in your WordPress site.
@@ -66,6 +66,8 @@ Please go to [the Post-to-Post Links II page](http://www.toppa.com/post-to-post-
 1. The modal dialog for selecting your link destination
 
 == Changelog ==
+
+= 1.2.1 = Bug fix: get tag links working!
 
 = 1.2 = Added support for custom post types
 

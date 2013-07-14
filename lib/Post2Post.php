@@ -184,7 +184,7 @@ class Post2Post {
             throw New Exception(__('You must provide a tag slug', 'p2p'));
         }
 
-        return $this->setTitleAndLinkUrlFromTermSlug($this->shortcode['cat_slug'], 'category');
+        return $this->setTitleAndLinkUrlFromTermSlug($this->shortcode['tag_slug'], 'post_tag');
     }
 
     private function setTitleAndLinkUrlFromTermSlug($slug, $type) {
