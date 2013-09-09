@@ -53,19 +53,19 @@ class Post2Post {
         try {
             $this->setShortcode($userShortcode);
 
-            if ($this->shortcode['slug']) {
+            if (isset($this->shortcode['slug'])) {
                 $this->setTitleAndLinkUrlFromPostSlug();
             }
 
-            elseif ($this->shortcode['id']) {
+            elseif (isset($this->shortcode['id'])) {
                 $this->setTitleAndLinkUrlFromPostId();
             }
 
-            elseif ($this->shortcode['cat_slug']) {
+            elseif (isset($this->shortcode['cat_slug'])) {
                 $this->setTitleAndLinkUrlFromCatSlug();
             }
 
-            elseif ($this->shortcode['tag_slug']) {
+            elseif (isset($this->shortcode['tag_slug'])) {
                 $this->setTitleAndLinkUrlFromTagSlug();
             }
 
@@ -93,7 +93,7 @@ class Post2Post {
             throw New Exception(__('No shortcode attributes found', 'p2p'));
         }
 
-        if ($userShortcode['type']) {
+        if (isset($userShortcode['type'])) {
             switch ($userShortcode['type']) {
                 case 'slug':
                     $userShortcode['slug'] = $userShortcode['value'];
@@ -228,7 +228,7 @@ class Post2Post {
         }
 
         // for backwards compatibility with older versions
-        elseif ($this->shortcode['text']) {
+        elseif (isset($this->shortcode['text'])) {
             $this->linkText = $this->shortcode['text'];
         }
 
@@ -240,7 +240,7 @@ class Post2Post {
     }
 
     public function setLinkAnchor() {
-        if ($this->shortcode['anchor']) {
+        if (isset($this->shortcode['anchor'])) {
             $this->linkAnchor = '#' . $this->shortcode['anchor'];
         }
 
@@ -251,7 +251,7 @@ class Post2Post {
         if ($this->status == 'publish') {
             $this->p2pLink = "<a href='{$this->linkUrl}{$this->linkAnchor}' title='{$this->title}'";
 
-            if (is_string($this->shortcode['attributes'])) {
+            if (isset($this->shortcode['attributes']) && is_string($this->shortcode['attributes'])) {
                 $this->p2pLink .= ' ' . $this->shortcode['attributes'];
             }
 
