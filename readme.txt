@@ -11,6 +11,8 @@ Using a modal dialog window in the post editor, easily link to another post, pag
 
 == Description ==
 
+**I am currently no longer developing or supporting this plugin. I may resume development and support in the future, but I'm not sure when.**
+
 *New in version 1.2:* Support for custom post types
 
 [youtube http://www.youtube.com/watch?v=KTwM5P6TohI]
