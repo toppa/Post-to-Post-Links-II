@@ -198,7 +198,7 @@ class Post2Post {
 
         $term = $this->functionsFacade->getTermBy('slug', $slug, $type);
 
-        if (!is_a($term, 'stdClass')) {
+        if (!($term instanceof stdClass)) {
             throw New Exception(
                 __('No term found with slug', 'p2p')
                 . ' "'
